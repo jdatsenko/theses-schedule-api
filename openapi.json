@@ -1,0 +1,241 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Swagger Petstore - OpenAPI 3.0",
+    "description": "z2",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://node27.webte.fei.stuba.sk/z2/api/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "schedule"
+    },
+    {
+      "name": "theses"
+    }
+  ],
+  "paths": {
+    "/schedule": {
+      "get": {
+        "tags": [
+          "schedule"
+        ],
+        "summary": "Get current schedule",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "schedule"
+        ],
+        "summary": "Create schedule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Schedule"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "201": {
+            "description": "Created - Schedule item created"
+          },
+          "500": {
+            "description": "Internal Server Error - Time has to be xx:xx:xx format"
+          }
+        }
+      }
+    },
+    "/schedule/{id}": {
+      "get": {
+        "tags": [
+          "schedule"
+        ],
+        "summary": "Get schedule by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "404": {
+            "description": "Schedule not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "schedule"
+        ],
+        "summary": "Update schedule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad request - Invalid input provided"
+          },
+          "422": {
+            "description": "Unprocessable Entity - Theses not found or invalid type provided"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "schedule"
+        ],
+        "summary": "Delete schedule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "404": {
+            "description": "Schedule not found"
+          }
+        }
+      }
+    },
+    "/theses/{pracovisko}/{typ}": {
+      "get": {
+        "tags": [
+          "theses"
+        ],
+        "summary": "Get theses by department and type",
+        "parameters": [
+          {
+            "name": "pracovisko",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "642",
+                "548",
+                "549",
+                "550",
+                "816",
+                "817",
+                "818",
+                "356"
+              ]
+            }
+          },
+          {
+            "name": "typ",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BP",
+                "DP",
+                "DizP"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Schedule": {
+        "type": "object",
+        "properties": {
+          "nazov": {
+            "type": "string"
+          },
+          "typ": {
+            "type": "string"
+          },
+          "miestnost": {
+            "type": "string"
+          },
+          "den": {
+            "type": "string"
+          },
+          "ucitel": {
+            "type": "string"
+          },
+          "cas_od": {
+            "type": "string"
+          },
+          "cas_do": {
+            "type": "string"
+          }
+        }
+      },
+      "ScheduleUpdate": {
+        "type": "object",
+        "properties": {
+          "nazov": {
+            "type": "string"
+          },
+          "typ": {
+            "type": "string"
+          },
+          "miestnost": {
+            "type": "string"
+          },
+          "ucitel": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-700 p-4">
+    <button onclick="parseData()"
+        class="bg-green-700 hover:bg-green-500 text-white font-bold py-2 px-4 rounded border border-gray-700">
+        Parse
+    </button>
+
+    <button onclick="deleteData()"
+        class="bg-red-700 hover:bg-red-500 text-white font-bold py-2 px-4 rounded ml-4 border border-gray-700">
+        Delete All Data
+    </button>
+
+    <button onclick="insertData()"
+        class="bg-blue-700 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded ml-4 border border-gray-700">
+        Insert entity
+    </button>
+
+    <button onclick="theses()" class="bg-black text-gray-200 font-bold py-2 px-4 rounded ml-4 border border-gray-700">
+        Theses
+    </button>
+    
+
+    <table id="scheduleTable" class="mx-auto my-8 w-full sm:w-5/6 lg:w-11/12">
+    </table>
+    
+
+
+    <div id="editModal" class="modal hidden fixed inset-0 bg-gray-50 bg-opacity-70 flex justify-center items-center">
+        <div class="modal-content bg-white p-6 w-1/3 rounded shadow-md">
+            <h2 class="text-xl mx-auto font-semibold mb-4">Edit Schedule</h2>
+            <form id="editForm">
+                <div class="mb-4">
+                    <label for="editNazov" class="block text-gray-700 font-bold mb-2">Nazov:</label>
+                    <input type="text" id="editNazov" name="nazov"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="mb-4">
+                    <label for="editMiestnost" class="block text-gray-700 font-bold mb-2">Miestnost:</label>
+                    <input type="text" id="editMiestnost" name="miestnost"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="mb-4">
+                    <label for="editTyp" class="block text-gray-700 font-bold mb-2">Typ:</label>
+                    <input type="text" id="editTyp" name="typ"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="mb-4">
+                    <label for="editUcitel" class="block text-gray-700 font-bold mb-2">Ucitel:</label>
+                    <input type="text" id="editUcitel" name="ucitel"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit"
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2 mr-2">Save</button>
+                    <button id="closeModal"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mt-2">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="insertModal" class="modal hidden fixed inset-0 bg-gray-50 bg-opacity-70 flex justify-center items-center">
+        <div class="modal-content bg-white p-6 w-1/3 rounded shadow-md">
+            <h2 class="text-xl mx-auto font-semibold mb-4">Insert schedule entity</h2>
+            <form id="insertForm">
+                <div class="mb-4">
+                    <label for="insertNazov" class="block text-gray-700 font-bold">Nazov:</label>
+                    <input type="text" id="insertNazov" name="nazov"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="mb-4">
+                    <label for="insertMiestnost" class="block text-gray-700 font-bold">Miestnost:</label>
+                    <input type="text" id="insertMiestnost" name="miestnost"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="mb-4">
+                    <label for="insertTyp" class="block text-gray-700 font-bold">Typ:</label>
+                    <input type="text" id="insertTyp" name="typ"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="mb-4">
+                    <label for="insertUcitel" class="block text-gray-700 font-bold">Ucitel:</label>
+                    <input type="text" id="insertUcitel" name="ucitel"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="mb-4">
+                    <label for="insertDen" class="block text-gray-700 font-bold">Day:</label>
+                    <input type="text" id="insertDen" name="den"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="mb-4">
+                    <label for="insertCasOd" class="block text-gray-700 font-bold">Start Time:</label>
+                    <input type="text" id="insertCasOd" name="cas_od"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="mb-4">
+                    <label for="insertCasDo" class="block text-gray-700 font-bold">End Time:</label>
+                    <input type="text" id="insertCasDo" name="cas_do"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit"
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-1 mr-2">Save</button>
+                    <button id="closeInsertModal"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mt-1">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+
+        function insertData() {
+            const insertModal = document.getElementById('insertModal');
+            insertModal.classList.remove('hidden');
+
+            const insertForm = document.getElementById('insertForm');
+
+            function isValidTimeFormat(time) {
+                const regex = /^\d{2}:\d{2}:\d{2}$/;
+                return regex.test(time);
+            }
+
+            function handleSubmit(event) {
+                event.preventDefault();
+                const formData = new FormData(insertForm);
+                const formObject = {};
+                let isValid = true;
+
+                formData.forEach((value, key) => {
+                    if (key === 'cas_od' || key === 'cas_do') {
+                        if (!isValidTimeFormat(value)) {
+                            isValid = false;
+                            const errorMessage = 'Invalid time format. Enter time in the format xx:xx:xx.';
+                            showNotification(errorMessage, 'bg-red-500');
+                        }
+                    }
+                    formObject[key] = value;
+                });
+
+                if (isValid) {
+                    console.log('Form data:', formObject);
+                    insertSchedule(formObject);
+                }
+            }
+
+            insertForm.addEventListener('submit', handleSubmit);
+
+            const closeInsertModal = document.getElementById('closeInsertModal');
+            closeInsertModal.addEventListener('click', function (event) {
+                event.preventDefault();
+                insertModal.classList.add('hidden');
+                insertForm.removeEventListener('submit', handleSubmit);
+            });
+        }
+
+
+        function insertSchedule(schedule) {
+            fetch('/z2/api/schedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(schedule)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to insert schedule');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Schedule inserted successfully:', data);
+                    const message = `Schedule item inserted successfully.`;
+
+                    showNotification(message, 'bg-green-700');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error('Error inserting schedule:', error);
+                });
+        }
+
+        function parseData() {
+            fetch('./index.php').then(() => {
+                fetchData();
+            })
+        }
+
+        function fetchData() {
+            fetch('/z2/api/schedule')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch schedule data');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Fetched schedule data:', data);
+                    if (data.data.length === 0) {
+                        showNotification('Your data is empty', 'bg-yellow-700');
+                    } else {
+                        renderSchedule(data.data);
+                        showNotification('Data parsed', 'bg-green-700');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching schedule data:', error);
+                });
+        }
+
+        function theses() {
+            window.location.href = '/z2/theses.html';
+        }
+
+        window.addEventListener('load', () => {
+            fetchData();
+        });
+
+
+        function deleteData() {
+            fetch('./delete/index.php')
+                .then(response => response.json())
+                .then(data => {
+                    location.reload();
+                });
+            showNotification('All data deleted', 'bg-red-700');
+        }
+
+        function showNotification(message, colorClass) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-0 right-0 m-4 p-2 font-bold rounded ${colorClass} text-white`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function renderSchedule(data) {
+            const scheduleTable = document.getElementById('scheduleTable');
+            scheduleTable.innerHTML = '';
+
+            // Create table header
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = `
+            <th class="px-4 py-2 text-white">Nazov</th>
+        <th class="px-4 py-2 text-white">Day</th>
+        <th class="px-4 py-2 text-white">Room</th>
+        <th class="px-4 py-2 text-white">Type</th>
+        <th class="px-4 py-2 text-white">Start Time</th>
+        <th class="px-4 py-2 text-white">End Time</th>
+        <th class="px-4 py-2 text-white">Teacher</th>
+        <th class="px-4 py-2 text-white">Actions</th>
+    `;
+            scheduleTable.appendChild(headerRow);
+
+            // Populate table with schedule data
+            data.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+        <td class="border px-4 py-2 text-white">${entry.nazov}</td>
+            <td class="border px-4 py-2 text-white">${entry.den}</td>
+            <td class="border px-4 py-2 text-white">${entry.miestnost}</td>
+            <td class="border px-4 py-2 text-white">${entry.typ}</td>
+            <td class="border px-4 py-2 text-white">${entry.cas_od}</td>
+            <td class="border px-4 py-2 text-white">${entry.cas_do}</td>
+            <td class="border px-4 py-2 text-white">${entry.ucitel}</td>
+            <td class="border px-4 py-2 flex justify-center items-center">
+                <button class="delete-btn bg-red-700 hover:bg-red-500 text-white font-bold py-1 px-2 rounded border border-gray-700" data-id="${entry.id}">Delete</button>
+                <button class="edit-btn bg-blue-700 hover:bg-blue-500 text-white font-bold py-1 px-2 mx-3 rounded border border-gray-700" data-id="${entry.id}">Edit</button>
+            </td>
+
+        `;
+                scheduleTable.appendChild(row);
+
+                // Add event listeners to delete and edit buttons
+                const deleteButton = row.querySelector('.delete-btn');
+                deleteButton.addEventListener('click', function () {
+                    deleteSchedule(entry.id);
+                });
+                const editButton = row.querySelector('.edit-btn');
+                editButton.addEventListener('click', function () {
+                    openEditModal(entry);
+                });
+            });
+        }
+
+
+
+        function deleteSchedule(scheduleId) {
+            fetch('/z2/api/schedule/' + scheduleId, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete schedule');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Schedule deleted successfully:', data);
+                    const message = `Schedule item deleted successfully.`;
+
+                    showNotification(message, 'bg-green-700');
+                    fetchData();
+                })
+                .catch(error => {
+                    console.error('Error deleting schedule:', error);
+                });
+        }
+
+        function openEditModal(entry) {
+            const editModal = document.getElementById('editModal');
+            editModal.classList.remove('hidden');
+
+            const editForm = document.getElementById('editForm');
+
+            function handleSubmit(event) {
+                event.preventDefault();
+                const formData = new FormData(editForm);
+                const formObject = {};
+                formData.forEach((value, key) => {
+                    formObject[key] = value;
+                });
+                formObject.id = entry.id;
+                console.log('Form data:', formObject);
+                editSchedule(formObject);
+            }
+
+            editForm.addEventListener('submit', handleSubmit);
+
+            const editNazov = document.getElementById('editNazov');
+            editNazov.value = entry.nazov;
+            const editMiestnost = document.getElementById('editMiestnost');
+            editMiestnost.value = entry.miestnost;
+            const editTyp = document.getElementById('editTyp');
+            editTyp.value = entry.typ;
+            const editUcitel = document.getElementById('editUcitel');
+            editUcitel.value = entry.ucitel;
+
+            const closeModal = document.getElementById('closeModal');
+            closeModal.addEventListener('click', function () {
+                editModal.classList.add('hidden');
+                editForm.removeEventListener('submit', handleSubmit);
+            });
+        }
+
+
+        function editSchedule(schedule) {
+            fetch('/z2/api/schedule/' + schedule.id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(schedule)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to edit schedule');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Schedule edited successfully:', data);
+                    const message = `Schedule item edited successfully.`;
+
+                    showNotification(message, 'bg-green-700');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error('Error editing schedule:', error);
+                });
+        }
+
+    </script>
+</body>
+
+
+</html>

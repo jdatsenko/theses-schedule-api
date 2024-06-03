@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theses</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-400 min-h-screen m-2">
+    <div id="buttonContainer" class="mb-4">
+        <button id="openModalBtn"
+            class="bg-red-700 hover:bg-red-600 text-white font-bold py-2 px-4 rounded border border-gray-700">
+            Choose your theses
+        </button>
+
+    <button onclick="schedule()" class="bg-black text-gray-200 font-bold py-2 px-4 rounded ml-4 border border-gray-700">
+        Schedule
+    </button>
+    </div>
+
+    <div id="myModal" class="modal hidden fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50">
+        <div class="modal-content bg-white rounded-lg w-1/4 p-6">
+            <span id="closeButton" class="close absolute top-2 right-2 text-gray-500 cursor-pointer">&times;</span>
+            <h2 class="text-lg font-semibold mb-4">Select Parameters</h2>
+            <form id="thesesForm" class="flex flex-col gap-4">
+                <label for="typPraceSelect">Type of Work:</label>
+                <select id="typPraceSelect" name="typPrace"
+                    class="px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300">
+                    <option value="BP">Bachelor Thesis</option>
+                    <option value="DP">Master Thesis</option>
+                    <option value="DizP">Dissertation</option>
+                </select>
+                <label for="pracovisteSelect">Pracoviste:</label>
+                <select id="pracovisteSelect" name="pracoviste"
+                    class="px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300">
+                    <option value="356">ÚRK</option>
+                    <option value="548">ÚEAE</option>
+                    <option value="549">ÚEF</option>
+                    <option value="550">ÚE</option>
+                    <option value="642">ÚAM</option>
+                    <option value="816">ÚIM</option>
+                    <option value="817">ÚJFI</option>
+                    <option value="818">ÚMIKT</option>
+                </select>
+                <button type="submit" id="fetchThesesBtn"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Fetch Theses
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="searchContainer" class="max-w-3xl mx-auto mb-4">
+        <input id="searchInput" type="text"
+            class="w-full px-4 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+            placeholder="Search by title or abstract">
+    </div>
+
+    <div id="thesesList" class="my-8 sm:w-5/6 lg:w-11/12 w-5/6 mx-auto">
+
+        <div id="emptyMessage" class="hidden text-black mt-8 text-2xl font-semibold flex items-center justify-center">
+            No theses found. Choose some other options.
+        </div>
+    </div>
+
+    <div id="abstract" class="modal hidden fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50">
+        <div class="modal-content bg-white rounded-lg w-1/2 p-6 relative">
+            <h2 class="text-lg font-semibold mb-4">Abstract:</h2>
+            <button id="closeButton2"
+                class="close absolute top-3 right-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded border border-gray-700">Close</button>
+            <p id="abstractText"></p>
+        </div>
+    </div>
+
+    <script>
+
+        function schedule() {
+            window.location.href = '/z2/index.html';
+        }
+
+        const closeButton2 = document.getElementById('closeButton2');
+        closeButton2.addEventListener('click', () => {
+            const abstractModal = document.getElementById('abstract');
+            abstractModal.classList.add('hidden');
+        });
+
+        let openModalBtn = document.getElementById("openModalBtn");
+        let modal = document.getElementById("myModal");
+        let closeButton = document.getElementById("closeButton");
+
+        openModalBtn.onclick = function () {
+            modal.classList.remove("hidden");
+        }
+
+        closeButton.onclick = function () {
+            modal.classList.add("hidden");
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.classList.add("hidden");
+            }
+        }
+
+        document.getElementById('thesesForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const typPrace = document.getElementById('typPraceSelect').value;
+            const pracoviste = document.getElementById('pracovisteSelect').value;
+
+            fetchTheses(pracoviste, typPrace);
+
+            modal.classList.add("hidden");
+        });
+
+        function fetchTheses(pracoviste, typPrace) {
+            const apiUrl = `/z2/api/theses/${pracoviste}/${typPrace}`;
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch thesis data');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Fetched thesis data:', data);
+                    if (data.status === 'success') {
+                        if (data.data.length === 0) {
+                            document.getElementById('emptyMessage').classList.remove('hidden');
+                        } else {
+                            renderTheses(data.data);
+                            addSearchFunctionality(data.data);
+                        }
+                    } else {
+                        console.error('Failed to fetch thesis data:', data);
+                    }
+                })
+                .catch(error => {
+                    console.log('Error fetching thesis data:', error);
+                    const thesesList = document.getElementById('thesesList');
+                    thesesList.innerHTML = '<div class=" text-black mt-8 text-2xl font-semibold flex items-center justify-center">No theses found. Choose some other options.</div>';
+
+                });
+
+        }
+
+        function renderTheses(theses) {
+            const thesesList = document.getElementById('thesesList');
+            thesesList.innerHTML = '';
+
+            const table = document.createElement('table');
+            table.classList.add('table', 'w-full', 'border-collapse', 'thesis-table', 'mx-auto');
+
+            const thead = document.createElement('thead');
+            thead.classList.add('bg-gray-300');
+            const headerRow = document.createElement('tr');
+            Object.keys(theses[0]).forEach(key => {
+                if (key !== 'abstract') {
+                    const th = document.createElement('th');
+                    th.classList.add('px-6', 'py-3', 'text-center', 'font-semibold', 'text-black', 'cursor-pointer', 'hover:text-blue-600', 'transition', 'duration-300');
+                    th.textContent = key;
+                    headerRow.appendChild(th);
+                }
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            theses.forEach(thesis => {
+                const row = document.createElement('tr');
+                Object.entries(thesis).forEach(([key, value]) => {
+                    if (key !== 'abstract') {
+                        const cell = document.createElement('td');
+                        cell.classList.add('border', 'px-6', 'py-4', 'text-sm', 'text-black');
+                        cell.textContent = value;
+                        if (key === 'nazov') {
+                            cell.addEventListener('click', () => {
+                                const abstractModal = document.getElementById('abstract');
+                                const abstractText = document.getElementById('abstractText');
+                                abstractText.textContent = thesis.abstract;
+                                abstractModal.classList.remove('hidden');
+                            });
+                            cell.classList.add('cursor-pointer', 'hover:underline');
+                        }
+                        row.appendChild(cell);
+                    }
+                });
+                tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+
+            thesesList.appendChild(table);
+
+            addSortingFunctionality(); // Call sorting functionality here
+
+            openModalBtn.onclick = function () {
+                modal.classList.remove("hidden");
+            };
+
+        }
+
+        function addSearchFunctionality(theses) {
+            console.log('Adding search functionality');
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim().toLowerCase();
+                const filteredTheses = theses.filter(thesis => {
+                    const titleMatch = thesis.nazov.toLowerCase().includes(query);
+                    const abstractMatch = thesis.abstract.toLowerCase().includes(query);
+                    return titleMatch || abstractMatch;
+                });
+                renderTheses(filteredTheses);
+                highlightMatches(query);
+            });
+        }
+
+        function highlightMatches(query) {
+            const thesesList = document.getElementById('thesesList');
+            const cells = thesesList.querySelectorAll('td');
+            cells.forEach(cell => {
+                const text = cell.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                    cell.innerHTML = cell.innerHTML.replace(regex, '<span class="bg-yellow-200">$1</span>');
+                }
+            });
+        }
+
+        function addSortingFunctionality() {
+            const tableHeaders = document.querySelectorAll('.thesis-table th');
+            tableHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const table = header.closest('table');
+                    const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+                    const rows = Array.from(table.querySelectorAll('tbody tr'));
+                    let isAscending = !header.classList.contains('ascending'); 
+
+                    rows.sort((a, b) => {
+                        const aValue = a.children[columnIndex].textContent.trim();
+                        const bValue = b.children[columnIndex].textContent.trim();
+                        return isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+                    });
+
+                    rows.forEach(row => table.querySelector('tbody').appendChild(row));
+                    tableHeaders.forEach(h => h.classList.remove('ascending', 'descending'));
+                    header.classList.toggle('ascending', isAscending);
+                    header.classList.toggle('descending', !isAscending); 
+                });
+            });
+        }
+
+
+        renderTheses(theses);
+        addSearchFunctionality(theses);
+    </script>
+</body>
+
+</html>
